@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: sandbox
+    schema: sanderson_dbt_airbnb_raw
+    tables:
+      - name: listings
+        identifier: raw_listings
+      - name: reviews
+        identifier: raw_reviews
+        loaded_at_field: date
+        # freshness:
+        #   warn_after: {count: 6, period: day}
+        #   error_after: {count: 9, period: day}
