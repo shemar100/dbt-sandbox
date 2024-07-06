@@ -14,6 +14,7 @@ h as (
 select
     l.listing_id,
     l.listing_name,
+    l.listing_url,
     l.room_type,
     l.minimum_nights,
     l.price,
