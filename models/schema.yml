@@ -1,8 +1,11 @@
 version: 2
 
-models: 
+models:
   - name: dim_listings_cleansed
     description: Cleansed table hich contains airbnb listings.
+    tests:
+      - dbt_expectations.expect_table_column_count_to_equal_other_table:
+          compare_model: source("sandbox", "listings")
     columns:
       - name: listing_id
         description: Primary key for the listing
@@ -13,24 +16,22 @@ models:
       - name: host_id
         description: The hosts i. References the host table.
         tests:
-        - not_null
-        - relationships:
-            to: ref('dim_hosts_cleansed')
-            field: host_id
+          - not_null
+          - relationships:
+              to: ref('dim_hosts_cleansed')
+              field: host_id
       - name: room_type
         description: Type of apartment/room
         tests:
-          - accepted_values: 
-              values: ['Entire home/apt',
-                       'Private room',
-                       'Shared room',
-                       'Hotel room']
-      
+          - accepted_values:
+              values:
+                ["Entire home/apt", "Private room", "Shared room", "Hotel room"]
+
       - name: minimum_nights
         description: '{{ doc("dim_listing_cleansed__minimum_nights") }}'
         tests:
           - positive_value
-  
+
   - name: dim_hosts_cleansed
     description: Cleansed table for the Airbnb hosts
     columns:
@@ -39,15 +40,39 @@ models:
         tests:
           - not_null
           - unique
-      
+
       - name: host_name
         description: The name of the host
         tests:
           - not_null
-      
+
       - name: is_superhost
         description: Defines whether the hosts is a superhost.
         tests:
           - accepted_values:
-              values: ['t', 'f']
-  
+              values: ["t", "f"]
+
+  - name: dim_listings_with_hosts
+    columns:
+      - name: price
+        tests:
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: number
+          - dbt_expectations.expect_column_quantile_values_to_be_between:
+              quantile: .99
+              min_value: 40
+              max_value: 450
+          - dbt_expectations.expect_column_max_to_be_between:
+              max_value: 5000
+              config:
+                severity: warn
+
+
+  - name: fct_reviews
+    columns:
+      - name: listing_id
+        tests:
+          - relationships:
+              to: ref('dim_listings_cleansed')
+              field: listing_id
+          
