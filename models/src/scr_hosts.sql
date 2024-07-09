@@ -1,5 +1,5 @@
 with raw_hosts as (
-    select * from sandbox.sanderson_dbt_airbnb_raw.raw_hosts
+    select * from {{ source('sandbox', 'hosts') }}
 )
 
 select 

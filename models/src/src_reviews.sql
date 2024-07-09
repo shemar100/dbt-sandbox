@@ -1,5 +1,5 @@
 with raw_listings as (
-    select * from sandbox.sanderson_dbt_airbnb_raw.raw_reviews
+    select * from {{ source('sandbox', 'reviews') }}
 )
 
 select 
